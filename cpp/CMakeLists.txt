@@ -1,20 +1,23 @@
-cmake_minimum_required(VERSION 3.18)
-project(motion_core_cpp)
+cmake_minimum_required(VERSION 3.15)
+project(motion_core_cpp LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Python COMPONENTS Interpreter Development REQUIRED)
-
-# pybind11: submodule or pip-installed; supports both
-#   git submodule add https://github.com/pybind/pybind11 third_party/pybind11
-#   or: pip install pybind11, then -Dpybind11_DIR=$(python -m pybind11 --cmakedir)
+# 1. pybind11 패키지 탐지
 find_package(pybind11 CONFIG QUIET)
+
+# 2. 만약 찾지 못했다면 fatal error 대신 명확한 안내 출력
 if(NOT pybind11_FOUND)
-  add_subdirectory(third_party/pybind11)
+    message(FATAL_ERROR "pybind11을 찾을 수 없습니다. 'pip install pybind11' 후 -Dpybind11_DIR 경로를 지정했는지 확인해 주세요.")
 endif()
 
-pybind11_add_module(motion_core_cpp src/motion_core.cpp)
+# 3. C++ 파이썬 확장 모듈 정의
+pybind11_add_module(motion_core_cpp
+    src/motion_core.cpp
+)
 
-# Output next to the addon for Blender to import:
-#   copy motion_core_cpp*.pyd/.so into motion_sculpt/
-install(TARGETS motion_core_cpp DESTINATION .)
+# 4. Release 빌드 최적화 옵션 (MSVC 전용)
+if(MSVC)
+    target_compile_options(motion_core_cpp PRIVATE /O2 /EHsc)
+endif()
