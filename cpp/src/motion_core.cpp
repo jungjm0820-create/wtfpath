@@ -57,7 +57,7 @@ py::array_t<double> compose_globals(py::array_t<double> rest_rel,
         throw std::invalid_argument("compose_globals: leading dimensions must match");
     }
 
-    py::array_t<double> out({n, 4, 4});
+    py::array_t<double> out(std::vector<py::ssize_t>{n, 4, 4});
     auto g = out.mutable_unchecked<3>();
 
     double tmp[4][4];
@@ -122,7 +122,7 @@ py::array_t<double> skin_deform(py::array_t<double> verts,
     const py::ssize_t nB = g_acc.shape(1);
     const py::ssize_t K = w_acc.shape(1);
 
-    py::array_t<double> out({nG, nV, 3});
+    py::array_t<double> out(std::vector<py::ssize_t>{nG, nV, 3});
     auto o_acc = out.mutable_unchecked<3>();
 
     unsigned hw = std::thread::hardware_concurrency();
